@@ -1,6 +1,7 @@
 package com.example.coin_trade.domain.price;
 
 import com.example.coin_trade.domain.coin.Coin;
+import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
+@Entity
 public class Price {
 
     @Id
