@@ -1,58 +1,85 @@
 package com.example.coin_trade.controller;
 
 import com.example.coin_trade.domain.coin.Coin;
+import com.example.coin_trade.domain.coin.CoinRepository;
 import com.example.coin_trade.domain.price.Price;
 import com.example.coin_trade.domain.wallet.Wallet;
+import com.example.coin_trade.domain.wallet.WalletRepository;
 import com.example.coin_trade.service.WebService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@RestController
-@RequestMapping("/api")
+//@RestController
+@Controller
+//@RequestMapping("/api")
 public class WebController {
 
     private final WebService webService;
+    private final WalletRepository walletRepository;
+    private final CoinRepository coinRepository;
 
     @GetMapping("/")
     public String mainPage(Model model) throws Exception {
         List<Coin> coinList = webService.findAllCoins();
         model.addAttribute("coinList", coinList); // 전체 코인 리스트 전달
 
-        List<Price> priceList = new ArrayList<>();
-        priceList = webService.findPriceList(coinList.get(0).getCoincode());
+        List<Price> priceList = webService.findPriceList(coinList.get(0).getCoin_code());
         model.addAttribute("priceList", priceList); // 코인 리스트의 첫번째 코인의 가격 정보 전달
 
         Optional<Wallet> wallet = webService.findRecentWallet();
-        if (wallet.isPresent()) {
+        if(wallet.isPresent()){
             Wallet myWallet = wallet.get();
             model.addAttribute("myWallet", myWallet);
         }
         return "main";
     }
 
-    @RequestMapping(value = "/")
+    @GetMapping("/view-my-wallet")
+    public String viewMyWallet(@RequestParam("coinCode") String coinCode, Model model) {
+        webService.viewMyWallet(coinCode);
+        List<Coin> coinList = webService.findAllCoins();
+        model.addAttribute("coinList", coinList); // 전체 코인 리스트 전달
+
+        List<Price> priceList = webService.findPriceList(coinList.get(0).getCoin_code());
+        model.addAttribute("priceList", priceList); // 코인 리스트의 첫번째 코인의 가격 정보 전달
+
+        Coin coin = coinRepository.findByCoin_code(coinCode);
+        List<Wallet> walletList = walletRepository.findAllByCoin(coin);
+        Wallet myWallet = walletList.get(0);
+        model.addAttribute("myWallet", myWallet);
+
+        return "main";
+    }
+
+    @RequestMapping(value = "/buy-sell")
     public String BuyCoin(HttpServletRequest request) throws Exception {
         Optional<String> units_buy_opt = Optional.ofNullable(request.getParameter("buy_units"));
         if (units_buy_opt.isPresent()) {
+            Optional<String> coinCode = Optional.ofNullable(request.getParameter("coin_code"));
             String unit_buy_str = units_buy_opt.get();
             BigDecimal units = new BigDecimal(unit_buy_str).abs();
-            savePriceService.buyBTC(units, "BTC", "KRW");
+            System.out.println("--------------------------");
+            System.out.println(coinCode.get());
+            webService.buyBTC(units, coinCode.get(), "KRW");
         } else {
             Optional<String> units_sell_opt = Optional.ofNullable(request.getParameter("sell_units"));
+            Optional<String> coinCode = Optional.ofNullable(request.getParameter("coin_code"));
             if (units_sell_opt.isPresent()) {
                 String unit_sell_str = units_sell_opt.get();
                 BigDecimal units = new BigDecimal(unit_sell_str).abs();
-                savePriceService.sellBTC(units, "BTC", "KRW");
+                System.out.println("--------------------------");
+                System.out.println(coinCode.get());
+                webService.sellBTC(units, coinCode.get(), "KRW");
             }
         }
         return "redirect:";
@@ -61,11 +88,8 @@ public class WebController {
     @GetMapping("/coin/prices") // AJAX 구현을 위한 Price 데이터 전달 메소드
     public String getCoinPrices(Model model, @RequestParam String coinCode) throws Exception {
 
-        List<Price> priceList = new ArrayList<>();
-        priceList = webPageService.findPriceList(coinCode); // 코인코드를 파라미터로 받아, DB 조회 후 가격 정보를 전달
+        List<Price> priceList = webService.findPriceList(coinCode); // 코인코드를 파라미터로 받아, DB 조회 후 가격 정보를 전달
         model.addAttribute("priceList", priceList);
         return "main :: priceTable"; // thymeleaf AJAX 구현을 위해, 데이터가 변경 될 ":: ID" 추가
     }
-}
-
 }
