@@ -2,14 +2,41 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Coin Web</title>
+    <title>Trading Web</title>
     <link rel="stylesheet" href="css/main.css">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/dist/echarts.min.js"></script>
     <script type="text/javascript">
         window.onload = function() {
             priceAjax();
 
-            document.getElementById("coinSelect").addEventListener('change', priceAjax);
+            document.getElementById("coinSelect").addEventListener('change', function (){
+                priceAjax();
+                viewMyWallet();
+                updateCoinCode();
+            });
+
+            function viewMyWallet() {
+                var httpRequest = new XMLHttpRequest();
+                var coinCD = getCoinCode();
+
+                httpRequest.onreadystatechange = replaceContents;
+                httpRequest.open('GET', 'view-my-wallet?coinCode=' + coinCD);
+                httpRequest.send();
+
+                function replaceContents() {
+                    if (httpRequest.readyState === XMLHttpRequest.DONE) {
+                        if (httpRequest.status === 200) {
+                            var parser = new DOMParser(); // DOMParser 생성
+                            var doc = parser.parseFromString(httpRequest.response, 'text/html'); // 반환된 HTML을 파싱
+                            var newWallet = doc.getElementById("myWallet"); // 파싱된 HTML에서 지갑 정보를 가져옴
+                            var currentWallet = document.getElementById("myWallet"); // 현재 페이지에서 지갑 정보를 가져옴
+                            currentWallet.innerHTML = newWallet.innerHTML; // 현재 페이지의 지갑 정보를 갱신
+                        } else {
+                            alert('Request Issue!');
+                        }
+                    }
+                }
+            }
 
             function priceAjax() { // 가격 정보를 받아오기 위한 Ajax
                 var httpRequest = new XMLHttpRequest();
@@ -29,6 +56,12 @@
                         }
                     }
                 }
+            }
+
+            function updateCoinCode() {
+                var coinCD = getCoinCode();
+                document.getElementById("buyCoinCode").value = coinCD;  // 매수 form의 코인 코드 갱신
+                document.getElementById("sellCoinCode").value = coinCD;  // 매도 form의 코인 코드 갱신
             }
 
             function getCoinCode() { // 현재 Select된 코인 코드 가져옴
@@ -118,14 +151,16 @@
 <body>
 <h3 id="coinSelectDiv">
     코인 선택 : <select id="coinSelect">
-    <option th:each="coin : ${coinList}" th:value="${coin.coincode}"
-            th:text="${coin.coinname}"></option>
+    <option th:each="coin : ${coinList}" th:value="${coin.coin_code}"
+            th:text="${coin.coin_name}"></option>
 </select>
 </h3>
-<form action="/" method="post">
+<form action="/buy-sell" method="post">
+    <input type="hidden" id="buyCoinCode" name="coin_code">
     매수: <input type="text" name="buy_units"><input type="submit" value="구매">
 </form>
-<form action="/" method="post">
+<form action="/buy-sell" method="post">
+    <input type="hidden" id="sellCoinCode" name="coin_code">
     매도: <input type="text" name="sell_units"><input type="submit" value="판매">
 </form>
 <table id="priceTable" th:fragment="priceTable">
@@ -143,11 +178,11 @@
 <table id="myWallet" th:fragment="myWallet">
     <tr>
         <th>주문가능(KRW)</th>
-        <th>보유수량(BTC)</th>
+        <th>보유수량(COIN)</th>
     </tr>
     <tr th:each="wallet : ${myWallet}">
         <td th:text="${wallet.available_krw}" />
-        <td th:text="${wallet.available_btc}" />
+        <td th:text="${wallet.available_coin}" />
     </tr>
 </table>
 <div id="chart">
