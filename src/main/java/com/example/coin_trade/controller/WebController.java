@@ -62,26 +62,31 @@ public class WebController {
     }
 
     @RequestMapping(value = "/buy-sell")
-    public String BuyCoin(HttpServletRequest request) throws Exception {
+    public String BuyCoin(HttpServletRequest request, Model model) throws Exception {
         Optional<String> units_buy_opt = Optional.ofNullable(request.getParameter("buy_units"));
         if (units_buy_opt.isPresent()) {
             Optional<String> coinCode = Optional.ofNullable(request.getParameter("coin_code"));
             String unit_buy_str = units_buy_opt.get();
             BigDecimal units = new BigDecimal(unit_buy_str).abs();
-            System.out.println("--------------------------");
-            System.out.println(coinCode.get());
             webService.buyBTC(units, coinCode.get(), "KRW");
+            Coin coin = coinRepository.findByCoin_code(coinCode.get());
+            List<Wallet> walletList = walletRepository.findAllByCoin(coin);
+            Wallet myWallet = walletList.get(0);
+            model.addAttribute("myWallet", myWallet);
         } else {
             Optional<String> units_sell_opt = Optional.ofNullable(request.getParameter("sell_units"));
             Optional<String> coinCode = Optional.ofNullable(request.getParameter("coin_code"));
             if (units_sell_opt.isPresent()) {
                 String unit_sell_str = units_sell_opt.get();
                 BigDecimal units = new BigDecimal(unit_sell_str).abs();
-                System.out.println("--------------------------");
-                System.out.println(coinCode.get());
                 webService.sellBTC(units, coinCode.get(), "KRW");
+                Coin coin = coinRepository.findByCoin_code(coinCode.get());
+                List<Wallet> walletList = walletRepository.findAllByCoin(coin);
+                Wallet myWallet = walletList.get(0);
+                model.addAttribute("myWallet", myWallet);
             }
         }
+//        return "main";
         return "redirect:";
     }
 

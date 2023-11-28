@@ -145,7 +145,7 @@ public class WebService {
         Api_Client apiClient = new Api_Client(connectKey, secretKey);
         String result = apiClient.callApi(url, params);
         System.out.println(result);
-        viewMyWallet(coinCode);
+//        viewMyWallet(coinCode);
     }
 
     public void sellBTC(BigDecimal units, String coinCode, String currency) throws Exception {
@@ -158,7 +158,7 @@ public class WebService {
         Api_Client apiClient = new Api_Client(connectKey, secretKey);
         String result = apiClient.callApi(url, params);
         System.out.println(result);
-        viewMyWallet(coinCode);
+//        viewMyWallet(coinCode);
     }
 
     // 빗썸 API를 통해 코인의 현재 가격 정보를 가져 옴
