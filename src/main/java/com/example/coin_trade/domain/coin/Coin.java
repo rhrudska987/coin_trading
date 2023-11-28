@@ -32,18 +32,8 @@ public class Coin {
     @OneToMany(mappedBy = "coin", cascade = CascadeType.ALL)
     private List<Price> prices = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "walletId")
-    private Wallet wallet;
-
-    public void setWallet(Wallet wallet) {
-        this.wallet = wallet;
-        wallet.getCoins().add(this);
-    }
-
     public Coin(String coin_code, String coin_name, Wallet wallet) {
         this.coin_code = coin_code;
         this.coin_name = coin_name;
-        this.setWallet(wallet);
     }
 }

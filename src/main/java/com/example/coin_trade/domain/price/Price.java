@@ -23,9 +23,9 @@ public class Price {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String price;
+    private double price;
 
-    private String volume;
+    private double volume;
 
     private LocalDateTime date;
 
@@ -38,8 +38,12 @@ public class Price {
         coin.getPrices().add(this);
     }
 
+    public void setVolume(double volume) {
+        this.volume = volume;
+    }
+
     @Builder
-    public Price(String price, String volume, LocalDateTime date, Coin coin) {
+    public Price(double price, double volume, LocalDateTime date, Coin coin) {
         this.price = price;
         this.volume = volume;
         this.date = date;

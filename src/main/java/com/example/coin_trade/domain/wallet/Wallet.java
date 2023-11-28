@@ -1,14 +1,13 @@
 package com.example.coin_trade.domain.wallet;
 
 import com.example.coin_trade.domain.coin.Coin;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,28 +21,30 @@ public class Wallet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String in_use_krw;
-    private String in_use_btc;
-    private String available_krw;
-    private String available_btc;
-    private String total_krw;
-    private String total_btc;
-    private String xcoin_last_btc;
+    private double in_use_krw;
+    private double in_use_coin;
+    private double available_krw;
+    private double available_coin;
+    private double total_krw;
+    private double total_coin;
+    private double xcoin_last_coin;
 
-    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL)
-    private List<Coin> coins = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coinId")
+    private Coin coin;
+
 
     @Builder
-    public Wallet(String in_use_krw, String in_use_btc, String available_krw, String available_btc,
-                  String total_krw, String total_btc, String xcoin_last_btc,
-                  List<Coin> coins) {
+    public Wallet(double in_use_krw, double in_use_coin, double available_krw, double available_coin,
+                  double total_krw, double total_coin, double xcoin_last_coin,
+                  Coin coin) {
         this.in_use_krw = in_use_krw;
-        this.in_use_btc = in_use_btc;
+        this.in_use_coin = in_use_coin;
         this.available_krw = available_krw;
-        this.available_btc = available_btc;
+        this.available_coin = available_coin;
         this.total_krw = total_krw;
-        this.total_btc = total_btc;
-        this.xcoin_last_btc = xcoin_last_btc;
-        this.coins = coins;
+        this.total_coin = total_coin;
+        this.xcoin_last_coin = xcoin_last_coin;
+        this.coin = coin;
     }
 }
