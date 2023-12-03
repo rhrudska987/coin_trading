@@ -66,16 +66,16 @@ public class WebService {
     @PostConstruct
     private void initDelAllPrices() throws Exception {
         log.info("[initDelAllPrices] 프로그램 최초 실행 시, 기존 Price 데이터 삭제 (지운 데이터: " + priceRepository.count() + ")");
-        coinRepository.deleteAll();
-        priceRepository.deleteAll();
-        walletRepository.deleteAll();
+//        coinRepository.deleteAll();
+//        priceRepository.deleteAll();
+//        walletRepository.deleteAll();
         Coin bitcoin = new Coin("BTC", "bitcoin");
         Coin dogeCoin = new Coin("DOGE", "doge");
         Coin ripple = new Coin("XRP", "ripple");
         coinRepository.save(bitcoin);
         coinRepository.save(dogeCoin);
         coinRepository.save(ripple);
-//        viewMyWallet("BTC");
+        viewMyWallet("BTC");
     }
 
     public void viewMyWallet(String coinCode) {
@@ -111,7 +111,7 @@ public class WebService {
 
     }
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 20000)
 //    @Scheduled(cron = "30 0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,58,59 * * * *")
     public void savePriceEvery3min() throws Exception {
         Price currentPrice;

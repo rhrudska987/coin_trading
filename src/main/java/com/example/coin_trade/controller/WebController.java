@@ -66,9 +66,17 @@ public class WebController {
             Optional<String> coinCode = Optional.ofNullable(request.getParameter("coin_code"));
             String unit_buy_str = units_buy_opt.get();
             BigDecimal units = new BigDecimal(unit_buy_str).abs();
-            webService.buyBTC(units, coinCode.get(), "KRW");
-            Coin coin = coinRepository.findByCoin_code(coinCode.get());
-            List<Wallet> walletList = walletRepository.findAllByCoin(coin);
+            List<Wallet> walletList;
+            if(coinCode.get() == null || coinCode.get().isEmpty()) {
+                webService.buyBTC(units, "BTC", "KRW");
+                Coin coin = coinRepository.findByCoin_code("BTC");
+                walletList = walletRepository.findAllByCoin(coin);
+            }
+            else {
+                webService.buyBTC(units, coinCode.get(), "KRW");
+                Coin coin = coinRepository.findByCoin_code(coinCode.get());
+                walletList = walletRepository.findAllByCoin(coin);
+            }
             Wallet myWallet = walletList.get(0);
             model.addAttribute("myWallet", myWallet);
         } else {
@@ -77,9 +85,17 @@ public class WebController {
             if (units_sell_opt.isPresent()) {
                 String unit_sell_str = units_sell_opt.get();
                 BigDecimal units = new BigDecimal(unit_sell_str).abs();
-                webService.sellBTC(units, coinCode.get(), "KRW");
-                Coin coin = coinRepository.findByCoin_code(coinCode.get());
-                List<Wallet> walletList = walletRepository.findAllByCoin(coin);
+                List<Wallet> walletList;
+                if(coinCode.get() == null || coinCode.get().isEmpty()) {
+                    webService.sellBTC(units, "BTC", "KRW");
+                    Coin coin = coinRepository.findByCoin_code("BTC");
+                    walletList = walletRepository.findAllByCoin(coin);
+                }
+                else {
+                    webService.sellBTC(units, coinCode.get(), "KRW");
+                    Coin coin = coinRepository.findByCoin_code(coinCode.get());
+                    walletList = walletRepository.findAllByCoin(coin);
+                }
                 Wallet myWallet = walletList.get(0);
                 model.addAttribute("myWallet", myWallet);
             }
