@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -36,4 +37,10 @@ public class Coin {
         this.coin_code = coin_code;
         this.coin_name = coin_name;
     }
+
+    public Coin(String coin_code, String coin_name) {
+        this.coin_code = coin_code;
+        this.coin_name = coin_name;
+    }
 }
+

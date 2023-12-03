@@ -9,6 +9,7 @@ import com.example.coin_trade.domain.wallet.WalletRepository;
 import com.example.coin_trade.util.Api_Client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -41,11 +42,13 @@ public class WebService {
         return coinRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public List<Price> findPriceList(String coinCode) {
         Coin coin = coinRepository.findByCoin_code(coinCode);
         return priceRepository.findByCoinOrderByCoinDesc(coin);
     }
 
+    @Transactional(readOnly = true)
     public Optional<Wallet> findRecentWallet() {
         List<Wallet> walletList = walletRepository.findAll();
         Long recentId = 0L;
@@ -64,12 +67,18 @@ public class WebService {
     @PostConstruct
     private void initDelAllPrices() throws Exception {
         log.info("[initDelAllPrices] 프로그램 최초 실행 시, 기존 Price 데이터 삭제 (지운 데이터: " + priceRepository.count() + ")");
+        coinRepository.deleteAll();
         priceRepository.deleteAll();
         walletRepository.deleteAll();
-        viewMyWallet("BTC");
+        Coin bitcoin = new Coin("BTC", "bitcoin");
+        Coin dogeCoin = new Coin("DOGE", "doge");
+        Coin ripple = new Coin("XRP", "ripple");
+        coinRepository.save(bitcoin);
+        coinRepository.save(dogeCoin);
+        coinRepository.save(ripple);
+//        viewMyWallet("BTC");
     }
 
-//    @Transactional(readOnly = true)
     public void viewMyWallet(String coinCode) {
         Coin coin = coinRepository.findByCoin_code(coinCode);
         Api_Client apiClient = new Api_Client(connectKey, secretKey);
@@ -103,17 +112,13 @@ public class WebService {
 
     }
 
-    //    // 1분마다 코인의 가격과 거래량 정보를 저장
+    @Scheduled(fixedDelay = 10000)
 //    @Scheduled(cron = "30 0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,58,59 * * * *")
-    @Scheduled(fixedDelay = 50000)
     public void savePriceEvery3min() throws Exception {
         Price currentPrice;
         List<Coin> coinList = coinRepository.findAll();
-        log.info("[savePriceEvery3min] 3분마다 가격 정보를 저장 (현재 시간: " + LocalDateTime.now() + ", 저장할 코인 수: " + coinList.size()
-                + ")");
-
+        log.info("[savePriceEvery3min] 3분마다 가격 정보를 저장 (현재 시간: " + LocalDateTime.now() + ", 저장할 코인 수: " + coinList.size() + ")");
         double curPreGap = 0.0;
-
         for (Coin c : coinList) {
             currentPrice = getCoinPrice(c.getCoin_code());
             if (preVolumeMap.get(c.getCoin_code()) == null
@@ -144,8 +149,6 @@ public class WebService {
         System.out.println("coinCode: " + coinCode + ", currency: " + currency + ", units: " + units);
         Api_Client apiClient = new Api_Client(connectKey, secretKey);
         String result = apiClient.callApi(url, params);
-        System.out.println(result);
-//        viewMyWallet(coinCode);
     }
 
     public void sellBTC(BigDecimal units, String coinCode, String currency) throws Exception {
@@ -157,8 +160,6 @@ public class WebService {
         System.out.println("coinCode: " + coinCode + ", currency: " + currency + ", units: " + units);
         Api_Client apiClient = new Api_Client(connectKey, secretKey);
         String result = apiClient.callApi(url, params);
-        System.out.println(result);
-//        viewMyWallet(coinCode);
     }
 
     // 빗썸 API를 통해 코인의 현재 가격 정보를 가져 옴

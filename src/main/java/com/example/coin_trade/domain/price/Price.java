@@ -18,30 +18,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 public class Price {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private double price;
-
     private double volume;
-
     private LocalDateTime date;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coinId")
     private Coin coin;
-
     public void setCoin(Coin coin) {
         this.coin = coin;
         coin.getPrices().add(this);
     }
-
     public void setVolume(double volume) {
         this.volume = volume;
     }
-
     @Builder
     public Price(double price, double volume, LocalDateTime date, Coin coin) {
         this.price = price;

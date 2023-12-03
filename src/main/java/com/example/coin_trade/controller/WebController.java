@@ -19,9 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RequiredArgsConstructor
-//@RestController
 @Controller
-//@RequestMapping("/api")
 public class WebController {
 
     private final WebService webService;
@@ -86,7 +84,6 @@ public class WebController {
                 model.addAttribute("myWallet", myWallet);
             }
         }
-//        return "main";
         return "redirect:";
     }
 
