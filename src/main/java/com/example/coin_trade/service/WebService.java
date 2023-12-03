@@ -9,7 +9,6 @@ import com.example.coin_trade.domain.wallet.WalletRepository;
 import com.example.coin_trade.util.Api_Client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
