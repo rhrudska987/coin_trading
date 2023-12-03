@@ -8,9 +8,9 @@ spring:
     database: H2
     show-sql: true
     hibernate:
-#      ddl-auto: create
-      hbm2ddl:
-        auto: update
+      ddl-auto: create
+#      hbm2ddl:
+#        auto: update
 
 BITHUMB:
   REST:
